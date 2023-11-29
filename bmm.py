@@ -1,9 +1,13 @@
-from sampleDiscrete import sampleDiscrete
-import scipy.io as sio
 import numpy as np
+import scipy.io as sio
+from tqdm import tqdm
+
+from sampleDiscrete import sampleDiscrete
 
 
-def BMM(A, B, K, alpha, gamma):
+def BMM(
+    training_data, test_data, num_mixture_components, alpha, gamma, num_iters_gibbs=10
+):
     """
 
     :param A: Training data [D, 3]
@@ -13,52 +17,72 @@ def BMM(A, B, K, alpha, gamma):
     :param gamma: parameter of the Dirichlet over words
     :return: test perplexity and multinomial weights over words
     """
-    W = np.max([np.max(A[:, 1]), np.max(B[:, 1])])  # total number of unique words
-    D = np.max(A[:, 0])  # number of documents in A
+    total_words = np.max(
+        [np.max(training_data[:, 1]), np.max(test_data[:, 1])]
+    )  # total number of unique words
+    total_docs = np.max(training_data[:, 0])  # number of documents in A
 
     # Initialization: assign each document a mixture component at random
-    sd = np.floor(K * np.random.rand(D)).astype(int)  # mixture component assignment
-    swk = np.zeros((W, K))  # K multinomials over W unique words
+    sd = np.floor(num_mixture_components * np.random.rand(total_docs)).astype(
+        int
+    )  # mixture component assignment
+    bmm_swk = np.zeros(
+        (total_words, num_mixture_components)
+    )  # K multinomials over W unique words
     sk_docs = np.zeros(
-        (K, 1), dtype=int
+        (num_mixture_components, 1), dtype=int
     )  # number of documents assigned to each mixture
-    # Populate the count matrices by looping over documents
-    for d in range(D):
+    print("Populate the count matrices by looping over documents")
+    for d in tqdm(range(total_docs)):
         training_documents = np.where(
-            A[:, 0] == d + 1
+            training_data[:, 0] == d + 1
         )  # get all occurrences of document d in the training data
-        w = np.array(A[training_documents, 1])  # number of unique words in document d
-        c = np.array(A[training_documents, 2])  # counts of words in document d
+        w = np.array(
+            training_data[training_documents, 1]
+        )  # number of unique words in document d
+        c = np.array(
+            training_data[training_documents, 2]
+        )  # counts of words in document d
         k = sd[d]  # document d is in mixture k
-        swk[w - 1, k] += c  # number of times w is assigned to component k
+        bmm_swk[w - 1, k] += c  # number of times w is assigned to component k
         sk_docs[k] += 1
 
     sk_words = np.sum(
-        swk, axis=0
+        bmm_swk, axis=0
     )  # number of words assigned to mixture k over all docs
 
-    num_iters_gibbs = 10
-    # Perform Gibbs sampling through all documents and words
-    for iter in range(num_iters_gibbs):
-        for d in range(D):
+    sk_docs_over_time = np.zeros(
+        (num_mixture_components, num_iters_gibbs + 1), dtype=int
+    )
+    sk_docs_over_time[:, 0] = np.copy(sk_docs)[:, 0]
+
+    print("Perform Gibbs sampling through all documents and words")
+    for iteration in tqdm(range(num_iters_gibbs)):
+        for d in range(total_docs):
             training_documents = np.where(
-                A[:, 0] == d + 1
+                training_data[:, 0] == d + 1
             )  # get all occurrences of document d in trh training data
-            w = A[training_documents, 1]  # number of unique words in document d
-            c = A[training_documents, 2]  # counts of words in document d
+            w = training_data[
+                training_documents, 1
+            ]  # number of unique words in document d
+            c = training_data[training_documents, 2]  # counts of words in document d
             old_class = sd[d]  # document d is in mixture k
             # remove document from counts
-            swk[
+            bmm_swk[
                 w - 1, old_class
             ] -= c  # decrease number of times w is assigned to component k
             sk_docs[old_class] -= 1  # remove document d from count of docs
             sk_words[old_class] -= np.sum(c)  # remove word counts from mixture
             # resample class of document
-            lb = np.zeros(K)  # log probability of doc d under mixture component k
+            lb = np.zeros(
+                num_mixture_components
+            )  # log probability of doc d under mixture component k
 
-            for k in range(K):
+            for k in range(num_mixture_components):
                 ll = np.dot(
-                    np.log(swk[w - 1, k] + gamma) - np.log(sk_words[k] + gamma * W), c.T
+                    np.log(bmm_swk[w - 1, k] + gamma)
+                    - np.log(sk_words[k] + gamma * total_words),
+                    c.T,
                 )
 
                 lb[k] = np.log(sk_docs[k] + alpha) + ll
@@ -69,31 +93,35 @@ def BMM(A, B, K, alpha, gamma):
                 b, np.random.rand()
             )  # sample from (un-normalized) multinomial distribution
             # update counts based on new class assignment
-            swk[w - 1, kk] += c  # number of times w is assigned to component k
+            bmm_swk[w - 1, kk] += c  # number of times w is assigned to component k
             sk_docs[kk] += 1
             sk_words[kk] += np.sum(c)
             sd[d] = kk
 
+        # add on to history
+        sk_docs_over_time[:, iteration + 1] = np.copy(sk_docs)[:, 0]
+
     # test documents
     lp = 0
     nd = 0
-    unique_docs_in_b = np.unique(B[:, 0])
-    for doc in unique_docs_in_b:
-        test_docs = np.where(B[:, 0] == doc)
-        w = B[test_docs, 1]  # unique words in doc d
-        c = B[test_docs, 2]  # counts
+    unique_docs_in_b = np.unique(test_data[:, 0])
+    print("Loop over test docs")
+    for doc in tqdm(unique_docs_in_b):
+        test_docs = np.where(test_data[:, 0] == doc)
+        w = test_data[test_docs, 1]  # unique words in doc d
+        c = test_data[test_docs, 2]  # counts
         z = np.log(sk_docs + alpha) - np.log(np.sum(sk_docs + alpha))
-        for k in range(K):
-            b = (swk[:, k] + gamma) / (sk_words[k] + gamma * W)
+        for k in range(num_mixture_components):
+            b = (bmm_swk[:, k] + gamma) / (sk_words[k] + gamma * total_words)
             z[k] += np.dot(c, np.log(b[w - 1]).T)[0]  # probability for doc d
         lp += np.log(np.sum(np.exp(z - np.max(z)))) + np.max(
             z
         )  # log-sum-exp to compute normalization constant
         nd += np.sum(c)
 
-    perplexity = np.exp(-lp / nd)  # perplexity
+    bmm_perplexity = np.exp(-lp / nd)  # perplexity
 
-    return perplexity, swk
+    return bmm_perplexity, bmm_swk, sk_docs_over_time
 
 
 if __name__ == "__main__":
@@ -104,13 +132,14 @@ if __name__ == "__main__":
     B = data["B"]
     V = data["V"]
     K = 20  # number of clusters
-    alpha = 10  # parameter of the Dirichlet over mixture components
-    gamma = 0.1  # parameter of the Dirichlet over words
-    perplexity, swk = BMM(A, B, K, alpha, gamma)
+    ALPHA = 10  # parameter of the Dirichlet over mixture components
+    GAMMA = 0.1  # parameter of the Dirichlet over words
+    perplexity, swk, _ = BMM(A, B, K, ALPHA, GAMMA)
     print(perplexity)
-    I = 20
+
+    NUM_TO_DISPLAY = 20
     indices = np.argsort(-swk, axis=0)
-    indices = indices[:20, :]
+    indices = indices[:NUM_TO_DISPLAY, :]
     top_words = V[indices]
     for topic in top_words[:, :, 0].T:
         print("\n")
