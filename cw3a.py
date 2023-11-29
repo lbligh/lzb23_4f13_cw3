@@ -34,8 +34,8 @@ if __name__ == "__main__":
     print(f"W={W} distinct words")
     print(f"N={total_words} total words")
 
-    num_to_show = 20
-    top_words_indices = np.argsort(word_frequencies)[::-1][:num_to_show]
+    NUM_TO_SHOW = 20
+    top_words_indices = np.argsort(word_frequencies)[::-1][:NUM_TO_SHOW]
     top_frequencies = word_frequencies[top_words_indices]
     top_words = [word[0] for word in V[top_words_indices, 0]]
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     plt.figure()
 
-    bottom_words_indices = np.argsort(word_frequencies)[:num_to_show]
+    bottom_words_indices = np.argsort(word_frequencies)[:NUM_TO_SHOW]
     bottom_frequencies = word_frequencies[bottom_words_indices]
     bottom_words = [word[0] for word in V[bottom_words_indices, 0]]
 

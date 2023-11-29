@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def sampleDiscrete(p, ran=None):
     """
     Helper method for sampling from an unnormalized discrete random variable using (generalized) inverse CDF sampling
