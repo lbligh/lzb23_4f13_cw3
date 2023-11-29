@@ -69,7 +69,7 @@ if __name__ == "__main__":
         bot_axs[ax].set_xlabel(r"\textbf{Probability}")
 
     plt.figure(top)
-    plt.suptitle(r"\textbf{Top 20 | Posterior Pred. Dist.}")
+    plt.suptitle(r"\textbf{Top 20 $\vert$ Posterior Pred. Dist.}")
     plt.savefig(
         PLOT_DIR + f"b_pred_histogram_{alpha}.png",
         dpi=500,
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     )
 
     plt.figure(bot)
-    plt.suptitle(r"\textbf{Bottom 20 | Posterior Pred. Dist.}")
+    plt.suptitle(r"\textbf{Bottom 20 $\vert$ Posterior Pred. Dist.}")
     plt.savefig(
         PLOT_DIR + f"b_pred_histogram_bottom_{alpha}.png",
         dpi=500,
