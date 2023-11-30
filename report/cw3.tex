@@ -1,0 +1,273 @@
+%& -output-directory=. -aux-directory=./logs
+\documentclass[11pt]{amsart}
+\usepackage{geometry} % see geometry.pdf on how tolay out the page. There's lots.
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{siunitx}
+\usepackage{fancyhdr}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{csquotes}
+\usepackage{pdflscape}
+\usepackage[toc,page]{appendix}
+\usepackage{float}
+\usepackage{sidecap}
+\usepackage{minted}
+\usepackage{listings}
+\usepackage{circuitikz}
+\usepackage{hyperref}
+\usepackage[style=chicago-authordate]{biblatex} %Imports biblatex package
+
+\geometry{a4paper} % orletter or a5paper or ... etc %
+\geometry{left=2.5cm, right=2.5cm, bottom=2.5cm, top = 2.5cm}
+\setlength{\intextsep}{5pt} % Vertical space above & below [h] floats
+\setlength{\textfloatsep}{5pt} % Vertical space below (above) [t] ([b]) floats
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{5pt}
+
+\newenvironment{Figure}
+  {\par\medskip\noindent\minipage{\linewidth}}
+  {\endminipage\par\medskip}
+
+
+\author{CCN: 5654F}
+\title[4F13 - Coursework \#3: Latent Dirichlet Allocation]{\vspace{-.4in}4F13 - Coursework \#3: Latent Dirichlet Allocation\vspace{-.2in}}
+\date{Wednesday 15th November 2023} % delete this line to display the current date4340-
+
+
+%%% BEGIN DOCUMENT
+\begin{document}
+\maketitle
+\vspace{-.4in}
+\section{Task A: Multinomial Maximum Likelihood} \label{sec:a}
+
+% \begin{listing}[h]
+%     \begin{minted}[linenos,breaklines,fontsize=\footnotesize]{python3}
+%         m[p] = sum(t[np.where(G[:, 0] == p)]) - sum(
+%                 t[np.where(G[:, 1] == p)]
+%             )
+
+%         winner = G[g, 0]
+%         loser = G[g, 1]
+
+%         iS[winner, winner] += 1
+%         iS[loser, loser] += 1
+%         iS[winner, loser] -= 1
+%         iS[loser, winner] -= 1
+%     \end{minted}
+%     \caption{Task A code excerpts} \label{lst:cw2a}
+% \end{listing}
+
+% \begin{figure}[h]
+%     \centering
+%     \begin{subfigure}[b]{0.62\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/Ta_sample_skills.png}
+%         \caption{Player Skills}
+%         \label{fig:ta_skills}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[b]{0.37\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/Ta_acorr.png}
+%         \caption{Player Autocorrelations}
+%         \label{fig:ta_autocor}
+%     \end{subfigure}
+%     \caption{Task A Figures}
+% \end{figure} \label{fig:taska_all}
+
+% \begin{figure}[h]
+%     \centering
+%     \begin{subfigure}[b]{0.495\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/change_in_mean_normal.png}
+%         \caption{Player Mean Convergence}
+%         \label{fig:tb_means}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[b]{0.495\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/change_in_precision_normal.png}
+%         \caption{Player Precision Convergence}
+%         \label{fig:tb_precs}
+%     \end{subfigure}
+%     \caption{Task B Figures}
+% \end{figure} \label{fig:taskb_all}
+
+% \begin{eqnarray}
+%     p(w_i > w_j) = p(w_j-w_i < 0) =\Phi \left(\frac{\mu_i - \mu_j}{\sqrt{\lambda_i^{-1} + \lambda_j^{-1}}}\right) \\ \label{eqn:skilldiff}
+%     p(w_i - w_j + n > 0) = \Phi \left(\frac{\mu_i - \mu_j}{\sqrt{\lambda_i^{-1} + \lambda_j^{-1} + 1}}\right) \label{eqn:win}
+% \end{eqnarray}
+
+% \begin{listing}[h]
+%     \begin{minted}[linenos,breaklines,fontsize=\footnotesize]{python3}
+%         prob_has_better_skill = 1.0 - norm.cdf(
+%             0, mean_differences, vars_sums**0.5
+%         )
+
+%         prob_win = 1.0 - norm.cdf(
+%             0, mean_differences, (vars_sums + 1.0) ** 0.5
+%         )
+%     \end{minted}
+%     \caption{Task C code excerpts} \label{lst:cw2c}
+% \end{listing}
+
+
+% \begin{table}
+%     \centering{}
+%     \begin{minipage}[t]{0.495\textwidth}
+%         \begin{center}
+%             \begin{tabular}{lcccc}\toprule
+%                 ---         & D           & N           & F           & M           \\ \midrule
+%                 Djokovic(D) & \num{0.500} & \num{0.940} & \num{0.909} & \num{0.985} \\
+%                 Nadal(N)    & \num{0.060} & \num{0.500} & \num{0.427} & \num{0.767} \\
+%                 Federer(F)  & \num{0.091} & \num{0.573} & \num{0.500} & \num{0.811} \\
+%                 Murray(M)   & \num{0.015} & \num{0.233} & \num{0.189} & \num{0.500} \\  \bottomrule
+%             \end{tabular}%
+%             \par\end{center}
+%         \caption{p(Higher Skill)} \label{tab:skill_prob}
+%         %
+%     \end{minipage}%
+%     \begin{minipage}[t]{0.495\textwidth}%
+%         \begin{center}
+%             \begin{tabular}{lcccc} \toprule
+%                 ---         & D           & N           & F           & M           \\ \midrule
+%                 Djokovic(D) & \num{0.500} & \num{0.655} & \num{0.638} & \num{0.720} \\
+%                 Nadal(N)    & \num{0.345} & \num{0.500} & \num{0.482} & \num{0.573} \\
+%                 Federer(F)  & \num{0.362} & \num{0.518} & \num{0.500} & \num{0.591} \\
+%                 Murray(M)   & \num{0.280} & \num{0.427} & \num{0.409} & \num{0.500} \\ \bottomrule
+%             \end{tabular}
+%             \par\end{center}
+%         \caption{p(Win)} \label{tab:win_prob}
+%         %
+%     \end{minipage}%
+% \end{table}
+
+
+% \begin{figure}[h]
+%     \centering
+%     \begin{subfigure}[b]{0.32\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/taskd_1.png}
+%         \caption{Gaussian Marginal Skill}
+%         \label{fig:td_gaussian}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[b]{0.32\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/taskd_2.png}
+%         \caption{Gaussian Joint Skill}
+%         \label{fig:td_2}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[b]{0.32\textwidth}
+%         \centering
+%         \includegraphics[width=0.99\textwidth]{../plots/taskd_3.png}
+%         \caption{Direct Comparison}
+%         \label{fig:td_3}
+%     \end{subfigure}
+%     \caption{Task D Figures}
+% \end{figure} \label{fig:taskd_all}
+
+
+% \begin{equation} \label{mat:td2_cov}
+%     \Sigma =
+%     \begin{bmatrix}
+%         0.0367 & 0.0074 \\
+%         0.0074 & 0.0474 \\
+%     \end{bmatrix}
+% \end{equation}
+
+
+
+% \begin{equation}
+%     p(w_i > w_j) = p(w_j-w_i < 0) =\Phi\left(\frac{ \mu_i - \mu_j }{\sigma_i^2 - 2\sigma_ij^{2}+\sigma_j^2}\right) \label{eqn:td_skills}
+% \end{equation}
+
+
+% \begin{table}
+%     \centering{}
+%     \begin{minipage}[t]{0.495\textwidth}
+%         \begin{center}
+%             \begin{tabular}{lcccc}\toprule
+%                 ---         & D     & N     & F     & M     \\ \midrule
+%                 Djokovic(D) & 0.500 & 0.957 & 0.922 & 0.982 \\
+%                 Nadal(N)    & 0.043 & 0.500 & 0.377 & 0.736 \\
+%                 Federer(F)  & 0.078 & 0.623 & 0.500 & 0.801 \\
+%                 Murray(M)   & 0.018 & 0.264 & 0.199 & 0.500 \\\bottomrule
+%             \end{tabular}%
+%             \par\end{center}
+%         \caption{Skill Probabilities}    \label{tab:taskd_skill}
+%         %
+%     \end{minipage}%
+%     \begin{minipage}[t]{0.495\textwidth}%
+%         \begin{center}
+%             \begin{tabular}{lcccc} \toprule
+%                 ---         & D      & N     & F      & M      \\ \midrule
+%                 Djokovic(D) & 0.000  & 0.017 & 0.014  & -0.003 \\
+%                 Nadal(N)    & -0.017 & 0.000 & -0.050 & -0.030 \\
+%                 Federer(F)  & -0.014 & 0.050 & 0.000  & -0.010 \\
+%                 Murray(M)   & 0.003  & 0.030 & 0.010  & 0.000  \\ \bottomrule
+%             \end{tabular}
+%             \par\end{center}
+%         \caption{Difference to Table \ref{tab:skill_prob}} \label{tab:taskd_diff}
+%         %
+%     \end{minipage}%
+% \end{table}
+
+
+
+% \begin{figure}[]
+%     \centering
+%     \includegraphics[width=0.99\textwidth]{../plots/taske.png}
+%     \caption{Player Rankings}
+%     \label{fig:te}
+% \end{figure}
+
+
+
+
+% \renewcommand{\thepage}{A\arabic{page}} 
+% \renewcommand{\thetable}{A\arabic{table}}  
+% \renewcommand{\thefigure}{A\arabic{figure}}
+% \renewcommand{\theequation}{A\arabic{equation}}
+% \setcounter{figure}{0}
+% % \setcounter{page}{0}
+% \setcounter{equation}{0}
+
+
+% \begin{appendices}
+
+
+% \clearpage
+
+
+
+% \begin{center}
+%     % \centering
+%     \includegraphics[width=0.3\textwidth]{pics/Screenshot 2023-02-07 at 21.45.49.png}
+%   \captionof{figure}{FPGA CAD Workflow \parencite{labhandout}} \label{fig:workflow}
+% %   \small\textsuperscript{Diagram taken from CUED 3B2 Lab Handout}
+% \end{center}
+
+% \clearpage
+% \section{Initial Traffic Light Timer Code} \label{sec:initcode}
+% \inputminted[linenos,breaklines]{vhdl}{../initialcode.vhdl}
+
+
+% \end{appendices}
+\end{document}
+
+
+
+
+% \begin{Figure}
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{pics/FPGA_cell_example.png}
+%   \captionof{figure}{Example of a Logic Cell \parencite{fpgawiki}} \label{fig:logiccell}
+% %   \small\textsuperscript{Diagram taken from CUED 3B2 Lab Handout}
+% \end{Figure}
