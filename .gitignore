@@ -53,7 +53,7 @@ test.out
 test.py
 
 #plots 
-plots/*
+# plots/*
 
 #tex
 report/*
