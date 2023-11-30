@@ -74,7 +74,7 @@ def LDA(training_data, test_data, num_mixture_comp, alpha, gamma, num_gibbs_iter
                 np.random.shuffle(non_zero_indices)
                 for k in non_zero_indices:
                     k = int(k)
-                    for i in range(int(a[0, k])):  # loop over counts for topic k
+                    for _ in range(int(a[0, k])):  # loop over counts for topic k
                         z[w, k] -= 1  # remove word from count matrices
                         _swk[w, k] -= 1
                         sk[k] -= 1
@@ -124,7 +124,7 @@ def LDA(training_data, test_data, num_mixture_comp, alpha, gamma, num_gibbs_iter
         words_in_d = test_data[np.where(test_data[:, 0] == d), 1][0] - 1
         for w in words_in_d:  # w are the words in doc d
             c = Swd[w, d - 1]
-            for i in range(c):
+            for _ in range(c):
                 k = np.floor(num_mixture_comp * np.random.rand())
                 z[w, int(k)] += 1
 
@@ -142,7 +142,7 @@ def LDA(training_data, test_data, num_mixture_comp, alpha, gamma, num_gibbs_iter
                 np.random.shuffle(non_zero_indices)
                 for k in non_zero_indices:
                     k = int(k)
-                    for i in range(int(a[k])):
+                    for _ in range(int(a[k])):
                         z[w, k] -= 1  # remove word from count matrix for doc d
                         Skd[k] -= 1
                         b = (alpha + Skd) * (gamma + _swk[w, :]) / (W * gamma + sk)
