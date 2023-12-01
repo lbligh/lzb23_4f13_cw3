@@ -31,13 +31,13 @@ if __name__ == "__main__":
     print(f"W={W} distinct words")
     print(f"N={total_words} total words")
 
-    top, top_axs = plt.subplots(1, 4, constrained_layout=True, figsize=(14, 4))
-    bot, bot_axs = plt.subplots(1, 4, constrained_layout=True, figsize=(14, 4))
+    top, top_axs = plt.subplots(1, 4, constrained_layout=True, figsize=(14, 3.2))
+    bot, bot_axs = plt.subplots(1, 1, constrained_layout=True, figsize=(14, 3.2))
 
     for ax, alpha in enumerate([0.1, 1, 10, 100]):
         plt.figure(top)
-        prior_counts = alpha * np.ones(W)
 
+        prior_counts = alpha * np.ones(W)
         posterior_counts = word_counts + prior_counts
         total_count = np.sum(posterior_counts)
 

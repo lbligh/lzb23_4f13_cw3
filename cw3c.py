@@ -57,9 +57,7 @@ if __name__ == "__main__":
     test_doc_total_words = np.sum(test_doc_word_counts)
 
     log_posterior_frequencies = np.log(posterior_frequencies)
-    # sum of probs of words weighted by count
     test_doc_log_probability = np.dot(test_doc_word_counts, log_posterior_frequencies)
-
     test_doc_perplexity = np.exp(-1 * test_doc_log_probability / test_doc_total_words)
 
     print(f"Test Doc (ID: {TEST_DOC_ID})")

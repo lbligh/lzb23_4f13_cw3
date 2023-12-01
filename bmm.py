@@ -51,10 +51,8 @@ def BMM(
         bmm_swk, axis=0
     )  # number of words assigned to mixture k over all docs
 
-    sk_docs_over_time = np.zeros(
-        (num_mixture_components, num_iters_gibbs + 1), dtype=int
-    )
-    sk_docs_over_time[:, 0] = np.copy(sk_docs)[:, 0]
+    sk_docs_history = np.zeros((num_mixture_components, num_iters_gibbs + 1), dtype=int)
+    sk_docs_history[:, 0] = np.copy(sk_docs)[:, 0]
 
     print("Perform Gibbs sampling through all documents and words")
     for iteration in tqdm(range(num_iters_gibbs)):
@@ -99,7 +97,7 @@ def BMM(
             sd[d] = kk
 
         # add on to history
-        sk_docs_over_time[:, iteration + 1] = np.copy(sk_docs)[:, 0]
+        sk_docs_history[:, iteration + 1] = np.copy(sk_docs)[:, 0]
 
     # test documents
     lp = 0
@@ -121,7 +119,7 @@ def BMM(
 
     bmm_perplexity = np.exp(-lp / nd)  # perplexity
 
-    return bmm_perplexity, bmm_swk, sk_docs_over_time
+    return bmm_perplexity, bmm_swk, sk_docs_history
 
 
 if __name__ == "__main__":

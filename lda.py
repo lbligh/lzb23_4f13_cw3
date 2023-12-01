@@ -55,12 +55,12 @@ def LDA(training_data, test_data, num_mixture_comp, alpha, gamma, num_gibbs_iter
 
     sk = np.sum(skd, axis=1)  # word to topic assignment counts accross all documents
 
-    skd_list = []
+    skd_history = []
     entropies = []
     # This makes a number of Gibbs sampling sweeps through all docs and words, it may take a bit to run
     print("Gibbs sample over all docs and words")
-    for _ in tqdm(range(num_gibbs_iters), desc="Each Iter."):
-        skd_list.append(np.copy(skd))
+    for _ in tqdm(range(num_gibbs_iters), desc="Each Iter"):
+        skd_history.append(np.copy(skd))
         for d in tqdm(range(D), desc="Over Docs", leave=False):
             z = s[d].todense()  # unique word topic assigmnet counts for document d
             words_in_doc_d = (
@@ -107,7 +107,7 @@ def LDA(training_data, test_data, num_mixture_comp, alpha, gamma, num_gibbs_iter
             word_entropy = 0
 
             for w in range(W):
-                word_entropy += -1 * betas[k, w] * np.log2(betas[k, w])
+                word_entropy += -1 * betas[k, w] * np.log(betas[k, w])
             aux_entropies.append(word_entropy)
         entropies.append(aux_entropies)
 
@@ -162,7 +162,7 @@ def LDA(training_data, test_data, num_mixture_comp, alpha, gamma, num_gibbs_iter
 
     _perplexity = np.exp(-lp / nd)  # perplexity
 
-    return _perplexity, _swk, np.array(skd_list), np.array(entropies)
+    return _perplexity, _swk, np.array(skd_history), np.array(entropies)
 
 
 if __name__ == "__main__":

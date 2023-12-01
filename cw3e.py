@@ -4,7 +4,7 @@ import numpy as np
 import scipy.io as sio
 from tqdm import tqdm
 
-# from lda import LDA
+from lda import LDA
 
 matplotlib.rc("text", usetex=True)
 
@@ -32,21 +32,17 @@ def plot_thetas(arg_list_skd, alpha, docid, total_iters):
     thetas_per_iter = get_thetas_per_iter(arg_list_skd, alpha, docid, total_iters)
     thetas_per_iter = np.transpose(thetas_per_iter)
 
-    plt.figure(figsize=(0.7 * thetas_per_iter.shape[0], 0.5 * thetas_per_iter.shape[0]))
+    plt.figure(figsize=(6.4, 4.5))
 
     x_s = range(total_iters)
     for k in range(thetas_per_iter.shape[0]):
-        plt.plot(x_s, thetas_per_iter[k], label="theta_" + str(k))
+        plt.plot(x_s, thetas_per_iter[k], label=rf"$\theta_{{{k}}}$")
 
-    plt.xlabel("Gibbs iteration", fontweight="bold", fontsize=13)
-    plt.ylabel(
-        "Posterior probability of mixture component (topic)",
-        fontweight="bold",
-        fontsize=13,
-    )
-    plt.title(
-        "Evolution of thetas for doc ID=" + str(docid), fontweight="bold", fontsize=16
-    )
+    plt.xlabel("Gibbs iteration", fontsize=13)
+    plt.ylabel("Posterior probability", fontsize=13)
+    plt.xlim(left=0)
+    plt.title(f"Topic Allocation for Document {docid}", fontsize=15)
+    plt.grid(alpha=0.4)
 
     plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
 
@@ -79,21 +75,19 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     NUM_CLUSTERS = 20  # K
-    ALPHA = 10
+    ALPHA = 0.1
     GAMMA = 0.1
     NUM_ITERS = 50
 
-    # print("RUNNING LDA COMMAND WILL TAKE F**KING AGES")
-    # lda_perplexity, lda_swk, list_skd, entropies = LDA(
+    # print("RUNNING LDA COMMAND - WILL TAKE F**KING AGES")
+    # lda_perplexity_, lda_swk_, list_skd_, entropies_ = LDA(
     #     A, B, NUM_CLUSTERS, ALPHA, GAMMA, NUM_ITERS
     # )
 
-    # lda_results = [lda_perplexity, lda_swk, list_skd, entropies]
-
-    # np.save("data/lda_perp.npy", lda_perplexity)
-    # np.save("data/lda_swk.npy", lda_swk)
-    # np.save("data/list_skd.npy", list_skd)
-    # np.save("data/entropies.npy", entropies)
+    # np.save("data/lda_perp.npy", lda_perplexity_)
+    # np.save("data/lda_swk.npy", lda_swk_)
+    # np.save("data/list_skd.npy", list_skd_)
+    # np.save("data/entropies.npy", entropies_)
 
     lda_perplexity = np.load("data/lda_perp.npy")
     lda_swk = np.load("data/lda_swk.npy")
@@ -105,20 +99,35 @@ if __name__ == "__main__":
     print("\tFinal Entropies: E =")
     print("\t" + str(entropies[-1]).replace("\n", "\n\t"))
 
-    plot_thetas(list_skd, alpha=0.1, docid=1000, total_iters=NUM_ITERS)
+    for doc_id in [11, 15, 1000]:
+        plot_thetas(list_skd, alpha=0.1, docid=doc_id, total_iters=NUM_ITERS)
 
+        plt.savefig(
+            PLOT_DIR + f"e_thetas_doc_{doc_id}.png",
+            dpi=500,
+            format="png",
+            bbox_inches="tight",
+        )
     plot_entropies = entropies.T
 
-    plt.figure(figsize=(0.7 * plot_entropies.shape[0], 0.5 * plot_entropies.shape[0]))
+    plt.figure(figsize=(7.4, 5.5))
 
     for i in range(plot_entropies.shape[0]):
         x = range(plot_entropies.shape[1])
-        plt.plot(x, plot_entropies[i], label="entropy_" + str(i))
+        plt.plot(x, plot_entropies[i], label=f"Topic {i}")
 
-        plt.xlabel("Gibbs iteration", fontweight="bold", fontsize=13)
-        plt.ylabel("Word entropy (in bits) for topic", fontweight="bold", fontsize=13)
-        plt.title("Evolution of word entropy", fontweight="bold", fontsize=16)
+    plt.xlabel("Gibbs iteration", fontsize=13)
+    plt.ylabel("Word entropy (nats)", fontsize=13)
+    plt.title("Word Entropies", fontsize=15)
+    plt.xlim(left=0)
+    plt.grid(alpha=0.4)
+    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
 
-        plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    plt.savefig(
+        PLOT_DIR + "e_entropies.png",
+        dpi=500,
+        format="png",
+        bbox_inches="tight",
+    )
 
-    plt.show()
+    # plt.show()

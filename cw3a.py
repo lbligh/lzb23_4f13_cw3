@@ -39,17 +39,18 @@ if __name__ == "__main__":
     top_frequencies = word_frequencies[top_words_indices]
     top_words = [word[0] for word in V[top_words_indices, 0]]
 
+    plt.figure(figsize=(6.4, 3))
     plt.grid(alpha=0.4, zorder=0)
 
     plt.barh(top_words[::-1], top_frequencies[::-1], zorder=3)
     plt.title(r"\textbf{20 Most Prevalent Words in Training Set}")
     plt.ylabel(r"\textbf{Word}")
-    plt.xlabel(r"\textbf{Frequency of Occurence}")
+    plt.xlabel(r"\textbf{Probability}")
     plt.savefig(
         plot_dir + "a_histogram.png", dpi=500, format="png", bbox_inches="tight"
     )
 
-    plt.figure()
+    plt.figure(figsize=(6.4, 3))
 
     bottom_words_indices = np.argsort(word_frequencies)[:NUM_TO_SHOW]
     bottom_frequencies = word_frequencies[bottom_words_indices]
@@ -60,8 +61,12 @@ if __name__ == "__main__":
     plt.barh(bottom_words, bottom_frequencies, zorder=3)
     plt.title(r"\textbf{20 Least Prevalent Words in Training Set}")
     plt.ylabel(r"\textbf{Word}")
-    plt.xlabel(r"\textbf{Frequency of Occurence}")
+    plt.xlabel(r"\textbf{Probability}")
     plt.savefig(
         plot_dir + "a_histogram_bottom.png", dpi=500, format="png", bbox_inches="tight"
     )
-    plt.show()
+    # plt.show()
+
+    print(
+        top_words[0],
+    )

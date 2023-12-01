@@ -37,12 +37,13 @@ if __name__ == "__main__":
     print(f"W={W} distinct words")
     print(f"N={total_words} total words")
 
-    np.random.seed(0)
-
     GIBBS_ITERATIONS = 50
     NUM_CLUSTERS = 20
     ALPHA = 10
     GAMMA = 0.1
+
+    SEED = 10
+    np.random.seed(SEED)
 
     perplexity, swk, sk_docs_over_time = BMM(
         A, B, NUM_CLUSTERS, ALPHA, GAMMA, GIBBS_ITERATIONS
@@ -63,16 +64,16 @@ if __name__ == "__main__":
         plt.plot(iterations, vals, label=label)
 
     plt.grid(alpha=0.4)
-    plt.title(r"Categorisation Progress $\vert$ seed = 0")
+    plt.title(rf"Categorisation Progress $\vert$ Seed = {SEED}")
     plt.xlabel("Iteration")
     plt.ylabel("Proportion in each category")
     plt.xlim(left=0)
-    plt.legend(loc="upper left")
+    # plt.legend(loc="upper left")
 
     plt.savefig(
-        PLOT_DIR + "d_progress.png",
+        PLOT_DIR + f"d_progress_seed_{SEED}.png",
         dpi=500,
         format="png",
         bbox_inches="tight",
     )
-    plt.show()
+    # plt.show()
